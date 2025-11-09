@@ -14,6 +14,7 @@ import com.example.widgetinventory.adapter.ProductAdapter
 import com.example.widgetinventory.databinding.ActivityHomeBinding
 import com.example.widgetinventory.login.LoginActivity
 import com.example.widgetinventory.model.Product
+import com.example.widgetinventory.product.AddProductActivity
 
 class HomeActivity : AppCompatActivity() {
 
@@ -23,10 +24,10 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         val prefs = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         val isLoggedIn = prefs.getBoolean("isLoggedIn", false)
-        
+
         if (!isLoggedIn) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -46,7 +47,7 @@ class HomeActivity : AppCompatActivity() {
         productAdapter = ProductAdapter(productList) { product ->
             onProductClick(product)
         }
-        
+
         binding.recyclerViewProducts.apply {
             layoutManager = LinearLayoutManager(this@HomeActivity)
             adapter = productAdapter
@@ -60,8 +61,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setupFab() {
+        // Aquí va la navegación a AddProductActivity
         binding.fabAddProduct.setOnClickListener {
-            Toast.makeText(this, "Agregar producto", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AddProductActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -80,9 +83,9 @@ class HomeActivity : AppCompatActivity() {
                     Product("005", "Webcam HD", 125000.75)
                 )
             )
-            
+
             productAdapter.updateProducts(productList)
-            
+
             binding.progressBar.visibility = View.GONE
             binding.recyclerViewProducts.visibility = View.VISIBLE
         }, 2000)
