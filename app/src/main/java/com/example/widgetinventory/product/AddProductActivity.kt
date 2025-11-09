@@ -47,24 +47,20 @@ class AddProductActivity : AppCompatActivity() {
             null
         }
 
-        // Código: máx 4 y solo dígitos
         binding.etProductCode.filters = arrayOf<InputFilter>(
             InputFilter.LengthFilter(4),
             digitsOnly
         )
 
-        // Nombre: máx 40 (texto libre)
         binding.etProductName.filters = arrayOf<InputFilter>(
             InputFilter.LengthFilter(40)
         )
 
-        // Precio: máx 20 y solo dígitos
         binding.etPrice.filters = arrayOf<InputFilter>(
             InputFilter.LengthFilter(20),
             digitsOnly
         )
 
-        // Cantidad: máx 9 y solo dígitos
         binding.etQuantity.filters = arrayOf<InputFilter>(
             InputFilter.LengthFilter(9),
             digitsOnly
@@ -83,7 +79,6 @@ class AddProductActivity : AppCompatActivity() {
         val priceStr = binding.etPrice.text?.toString()?.trim().orEmpty()
         val qtyStr = binding.etQuantity.text?.toString()?.trim().orEmpty()
 
-        // Código
         if (code.isEmpty()) {
             binding.tilProductCode.error = "Ingrese el código del producto"
             return false
@@ -91,7 +86,6 @@ class AddProductActivity : AppCompatActivity() {
             binding.tilProductCode.error = null
         }
 
-        // Nombre
         if (name.isEmpty()) {
             binding.tilProductName.error = "Ingrese el nombre del artículo"
             return false
@@ -99,7 +93,6 @@ class AddProductActivity : AppCompatActivity() {
             binding.tilProductName.error = null
         }
 
-        // Precio
         val price = priceStr.toDoubleOrNull()
         if (priceStr.isEmpty()) {
             binding.tilPrice.error = "Ingrese el precio"
@@ -111,7 +104,6 @@ class AddProductActivity : AppCompatActivity() {
             binding.tilPrice.error = null
         }
 
-        // Cantidad
         val qty = qtyStr.toIntOrNull()
         if (qtyStr.isEmpty()) {
             binding.tilQuantity.error = "Ingrese la cantidad"
@@ -137,8 +129,6 @@ class AddProductActivity : AppCompatActivity() {
 
         if (result != -1L) {
             Snackbar.make(binding.root, "Producto guardado", Snackbar.LENGTH_SHORT).show()
-            // Devuelve OK para que Home refresque si usas ActivityResult,
-            // o simplemente en Home haz loadProducts() en onResume().
             setResult(RESULT_OK)
             finish()
         } else {
@@ -148,7 +138,5 @@ class AddProductActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Opcional: cerrar helper si quieres ser explícito (SQLiteOpenHelper maneja conexiones internamente)
-        // dbHelper.close()
     }
 }
