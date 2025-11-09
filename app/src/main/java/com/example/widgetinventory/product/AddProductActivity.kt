@@ -1,19 +1,24 @@
 package com.example.widgetinventory.product
 
 import android.os.Bundle
+import android.text.InputFilter
 import androidx.appcompat.app.AppCompatActivity
-import com.example.widgetinventory.R
+import com.example.widgetinventory.database.DatabaseHelper
 import com.example.widgetinventory.databinding.ActivityAddProductBinding
+import com.example.widgetinventory.model.Product
 import com.google.android.material.snackbar.Snackbar
 
 class AddProductActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddProductBinding
+    private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddProductBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        dbHelper = DatabaseHelper(this)
 
         setupToolbar()
         setupInputValidation()
@@ -27,95 +32,123 @@ class AddProductActivity : AppCompatActivity() {
             setDisplayShowHomeEnabled(true)
             title = "Agregar producto"
         }
-
-        // Configurar el color del icono de navegación
         binding.toolbar.navigationIcon?.setTint(getColor(android.R.color.white))
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 
     private fun setupInputValidation() {
-        // Limitar código del producto a 4 dígitos
-        binding.etProductCode.filters = arrayOf(
-            android.text.InputFilter.LengthFilter(4)
+        val digitsOnly = InputFilter { source, start, end, _, _, _ ->
+            for (i in start until end) if (!source[i].isDigit()) return@InputFilter ""
+            null
+        }
+
+        // Código: máx 4 y solo dígitos
+        binding.etProductCode.filters = arrayOf<InputFilter>(
+            InputFilter.LengthFilter(4),
+            digitsOnly
         )
 
-        // Limitar nombre del artículo a 40 caracteres
-        binding.etProductName.filters = arrayOf(
-            android.text.InputFilter.LengthFilter(40)
+        // Nombre: máx 40 (texto libre)
+        binding.etProductName.filters = arrayOf<InputFilter>(
+            InputFilter.LengthFilter(40)
         )
 
-        // Limitar precio a 20 dígitos
-        binding.etPrice.filters = arrayOf(
-            android.text.InputFilter.LengthFilter(20)
+        // Precio: máx 20 y solo dígitos
+        binding.etPrice.filters = arrayOf<InputFilter>(
+            InputFilter.LengthFilter(20),
+            digitsOnly
+        )
+
+        // Cantidad: máx 9 y solo dígitos
+        binding.etQuantity.filters = arrayOf<InputFilter>(
+            InputFilter.LengthFilter(9),
+            digitsOnly
         )
     }
 
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
-            if (validateInputs()) {
-                saveProduct()
-            }
+            if (validateInputs()) saveProduct()
         }
     }
 
     private fun validateInputs(): Boolean {
-        val code = binding.etProductCode.text.toString().trim()
-        val name = binding.etProductName.text.toString().trim()
-        val price = binding.etPrice.text.toString().trim()
-        val quantity = binding.etQuantity.text.toString().trim()
+        val code = binding.etProductCode.text?.toString()?.trim().orEmpty()
+        val name = binding.etProductName.text?.toString()?.trim().orEmpty()
+        val priceStr = binding.etPrice.text?.toString()?.trim().orEmpty()
+        val qtyStr = binding.etQuantity.text?.toString()?.trim().orEmpty()
 
-        when {
-            code.isEmpty() -> {
-                binding.tilProductCode.error = "Ingrese el código del producto"
-                return false
-            }
-            name.isEmpty() -> {
-                binding.tilProductCode.error = null
-                binding.tilProductName.error = "Ingrese el nombre del artículo"
-                return false
-            }
-            price.isEmpty() -> {
-                binding.tilProductName.error = null
-                binding.tilPrice.error = "Ingrese el precio"
-                return false
-            }
-            quantity.isEmpty() -> {
-                binding.tilPrice.error = null
-                binding.tilQuantity.error = "Ingrese la cantidad"
-                return false
-            }
-            else -> {
-                // Limpiar todos los errores
-                binding.tilProductCode.error = null
-                binding.tilProductName.error = null
-                binding.tilPrice.error = null
-                binding.tilQuantity.error = null
-                return true
-            }
+        // Código
+        if (code.isEmpty()) {
+            binding.tilProductCode.error = "Ingrese el código del producto"
+            return false
+        } else {
+            binding.tilProductCode.error = null
         }
+
+        // Nombre
+        if (name.isEmpty()) {
+            binding.tilProductName.error = "Ingrese el nombre del artículo"
+            return false
+        } else {
+            binding.tilProductName.error = null
+        }
+
+        // Precio
+        val price = priceStr.toDoubleOrNull()
+        if (priceStr.isEmpty()) {
+            binding.tilPrice.error = "Ingrese el precio"
+            return false
+        } else if (price == null || price <= 0.0) {
+            binding.tilPrice.error = "Ingrese un precio válido"
+            return false
+        } else {
+            binding.tilPrice.error = null
+        }
+
+        // Cantidad
+        val qty = qtyStr.toIntOrNull()
+        if (qtyStr.isEmpty()) {
+            binding.tilQuantity.error = "Ingrese la cantidad"
+            return false
+        } else if (qty == null || qty < 0) {
+            binding.tilQuantity.error = "Ingrese una cantidad válida"
+            return false
+        } else {
+            binding.tilQuantity.error = null
+        }
+
+        return true
     }
 
     private fun saveProduct() {
-        // Aquí implementarás la lógica para guardar el producto
-        // Por ejemplo, guardarlo en una base de datos o enviarlo a un servidor
+        val code = binding.etProductCode.text!!.toString().trim()
+        val name = binding.etProductName.text!!.toString().trim()
+        val price = binding.etPrice.text!!.toString().trim().toDouble()
+        val quantity = binding.etQuantity.text!!.toString().trim().toInt()
 
-        val code = binding.etProductCode.text.toString()
-        val name = binding.etProductName.text.toString()
-        val price = binding.etPrice.text.toString()
-        val quantity = binding.etQuantity.text.toString()
+        val product = Product(id = code, name = name, price = price, quantity = quantity)
+        val result = dbHelper.insertProduct(product)
 
-        // Mostrar mensaje de éxito
-        Snackbar.make(
-            binding.root,
-            "Producto guardado exitosamente",
-            Snackbar.LENGTH_SHORT
-        ).show()
+        if (result != -1L) {
+            Snackbar.make(binding.root, "Producto guardado", Snackbar.LENGTH_SHORT).show()
+            // Devuelve OK para que Home refresque si usas ActivityResult,
+            // o simplemente en Home haz loadProducts() en onResume().
+            setResult(RESULT_OK)
+            finish()
+        } else {
+            Snackbar.make(binding.root, "Error al guardar", Snackbar.LENGTH_LONG).show()
+        }
+    }
 
-        // Volver a la pantalla anterior después de guardar
-        finish()
+    override fun onDestroy() {
+        super.onDestroy()
+        // Opcional: cerrar helper si quieres ser explícito (SQLiteOpenHelper maneja conexiones internamente)
+        // dbHelper.close()
     }
 }
