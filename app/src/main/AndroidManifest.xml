@@ -36,6 +36,19 @@
         </activity>
 
         <activity android:name=".MainActivity" />
+
+        <receiver
+            android:name=".widget.InventoryWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.widgetinventory.TOGGLE_BALANCE" />
+                <action android:name="com.example.widgetinventory.MANAGE_INVENTORY" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
     </application>
 
 </manifest>
