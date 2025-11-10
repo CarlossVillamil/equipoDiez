@@ -11,9 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.widgetinventory.adapter.ProductAdapter
+import com.example.widgetinventory.database.DatabaseHelper
 import com.example.widgetinventory.databinding.ActivityHomeBinding
 import com.example.widgetinventory.login.LoginActivity
 import com.example.widgetinventory.model.Product
+import com.example.widgetinventory.product.AddProductActivity
 
 class HomeActivity : AppCompatActivity() {
 
@@ -23,10 +25,10 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         val prefs = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         val isLoggedIn = prefs.getBoolean("isLoggedIn", false)
-        
+
         if (!isLoggedIn) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -46,7 +48,7 @@ class HomeActivity : AppCompatActivity() {
         productAdapter = ProductAdapter(productList) { product ->
             onProductClick(product)
         }
-        
+
         binding.recyclerViewProducts.apply {
             layoutManager = LinearLayoutManager(this@HomeActivity)
             adapter = productAdapter
@@ -61,31 +63,41 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setupFab() {
         binding.fabAddProduct.setOnClickListener {
-            Toast.makeText(this, "Agregar producto", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AddProductActivity::class.java)
+            startActivity(intent)
         }
     }
 
-    private fun loadProducts() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.recyclerViewProducts.visibility = View.GONE
+//    private fun loadProducts() {
+//        binding.progressBar.visibility = View.VISIBLE
+//        binding.recyclerViewProducts.visibility = View.GONE
+//
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            productList.clear()
+//            productList.addAll(
+//                listOf(
+//                    Product("001", "Laptop Dell", 2500000.00),
+//                    Product("002", "Mouse Logitech", 85000.50),
+//                    Product("003", "Teclado Mecánico", 350000.00),
+//                    Product("004", "Monitor Samsung 24\"", 890000.00),
+//                    Product("005", "Webcam HD", 125000.75)
+//                )
+//            )
+//
+//            productAdapter.updateProducts(productList)
+//
+//            binding.progressBar.visibility = View.GONE
+//            binding.recyclerViewProducts.visibility = View.VISIBLE
+//        }, 2000)
+//    }
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            productList.clear()
-            productList.addAll(
-                listOf(
-                    Product("001", "Laptop Dell", 2500000.00),
-                    Product("002", "Mouse Logitech", 85000.50),
-                    Product("003", "Teclado Mecánico", 350000.00),
-                    Product("004", "Monitor Samsung 24\"", 890000.00),
-                    Product("005", "Webcam HD", 125000.75)
-                )
-            )
-            
-            productAdapter.updateProducts(productList)
-            
-            binding.progressBar.visibility = View.GONE
-            binding.recyclerViewProducts.visibility = View.VISIBLE
-        }, 2000)
+    private fun loadProducts() {
+        val dbHelper = DatabaseHelper(this)
+        val products = dbHelper.getAllProducts()
+
+        productList.clear()
+        productList.addAll(products)
+        productAdapter.updateProducts(productList)
     }
 
     private fun onProductClick(product: Product) {
@@ -100,6 +112,11 @@ class HomeActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadProducts()
     }
 
     override fun onBackPressed() {
