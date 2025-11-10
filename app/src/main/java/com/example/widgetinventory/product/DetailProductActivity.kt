@@ -10,6 +10,8 @@ import com.example.widgetinventory.databinding.ActivityDetailProductBinding
 import com.example.widgetinventory.home.HomeActivity
 import com.example.widgetinventory.model.Product
 import com.google.android.material.snackbar.Snackbar
+import java.text.NumberFormat
+import java.util.Locale
 
 class DetailProductActivity : AppCompatActivity() {
 
@@ -27,7 +29,7 @@ class DetailProductActivity : AppCompatActivity() {
         setupToolbar()
         loadProductData()
         setupDeleteButton()
-        /**setupEditButton()**/
+        setupEditButton()
     }
 
     /** Configuración de la toolbar **/
@@ -51,38 +53,47 @@ class DetailProductActivity : AppCompatActivity() {
 
     /** Carga los datos del producto recibido por intent **/
     private fun loadProductData() {
-        // Intent: intentar varias claves posibles para mayor tolerancia
         val productId = intent.getStringExtra("PRODUCT_ID")
             ?: intent.getStringExtra("PRODUCT_CODE")
             ?: intent.getStringExtra("product_id")
             ?: intent.getStringExtra("product_code")
 
         if (productId.isNullOrBlank()) {
-            // No llegó id -> informar y cerrar
-            android.widget.Toast.makeText(this, "No se recibió el identificador del producto", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(
+                this,
+                "No se recibió el identificador del producto",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
             finish()
             return
         }
 
         product = dbHelper.getProductById(productId)
-
         if (product == null) {
-            // No existe en BD -> informar y cerrar
-            android.widget.Toast.makeText(this, "Producto no encontrado", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(
+                this,
+                "Producto no encontrado",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
             finish()
             return
         }
 
-        // Mostrar datos (con formato seguro)
-        product?.let {
-            binding.tvProductName.text = it.name ?: "—"
-            binding.tvProductPrice.text = "Precio unidad: $${"%.2f".format(it.price)}"
-            binding.tvProductQuantity.text = "Cantidad disponible: ${it.quantity}"
-            val total = (it.price * it.quantity)
-            binding.tvProductTotal.text = "Total: $${"%.2f".format(total)}"
+        product?.let { p ->
+            // Nombre arriba (negrita a la izquierda)
+            binding.tvProductName.text = p.name ?: "—"
+
+            // Valor a la derecha con formato: $ 23.000,00
+            binding.tvProductPrice.text = formatCurrency(p.price)
+
+            // Cantidad a la derecha (si quieres con miles: usa NumberFormat.getIntegerInstance(Locale("es","CO")).format(p.quantity))
+            binding.tvProductQuantity.text = p.quantity.toString()
+
+            // Total a la derecha con formato: $ 5.888.000,00
+            val total = p.price * p.quantity
+            binding.tvProductTotal.text = formatCurrency(total)
         }
     }
-
 
     /** Botón eliminar con diálogo de confirmación **/
     private fun setupDeleteButton() {
@@ -108,26 +119,34 @@ class DetailProductActivity : AppCompatActivity() {
                 Snackbar.make(binding.root, "Producto eliminado", Snackbar.LENGTH_SHORT).show()
                 navigateToHome()
             } else {
-                Snackbar.make(binding.root, "Error al eliminar el producto", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, "Error al eliminar el producto", Snackbar.LENGTH_LONG)
+                    .show()
             }
         }
     }
 
     /** Ícono flotante para editar **/
-    /**private fun setupEditButton() {
+    private fun setupEditButton() {
         binding.fabEdit.setOnClickListener {
             val intent = Intent(this, EditProductActivity::class.java)
             intent.putExtra("PRODUCT_ID", product?.id)
             startActivity(intent)
             finish()
         }
-    }**/
+    }
 
-    /** Navegar al Home Inventario (HU 3.0) **/
+    /** Navegar al Home Inventario **/
     private fun navigateToHome() {
         val intent = Intent(this, HomeActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
         finish()
+    }
+
+    private fun formatCurrency(value: Double): String {
+        val nf = NumberFormat.getNumberInstance(Locale("es", "CO"))
+        nf.minimumFractionDigits = 2
+        nf.maximumFractionDigits = 2
+        return "$ ${nf.format(value)}"
     }
 }

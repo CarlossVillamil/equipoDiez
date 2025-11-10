@@ -115,4 +115,22 @@ class DatabaseHelper(context: Context) :
         return result
     }
 
+    fun updateProduct(product: Product): Int {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_NAME, product.name)        // NOT NULL en la tabla
+            put(COLUMN_PRICE, product.price)      // REAL
+            put(COLUMN_QUANTITY, product.quantity) // INTEGER
+        }
+
+        val rows = db.update(
+            TABLE_PRODUCTS,
+            values,
+            "$COLUMN_CODE = ?",
+            arrayOf(product.id) // Usamos el "code" como ID lógico
+        )
+        db.close()
+        return rows
+    }
+
 }

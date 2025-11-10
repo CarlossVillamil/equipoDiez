@@ -45,40 +45,108 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
+                <!-- Nombre del producto -->
                 <TextView
                     android:id="@+id/tvProductName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:textColor="@android:color/black"
-                    tools:text="Nombre del producto" />
+                    android:gravity="start"
+                    tools:text="zapatos" />
 
-                <TextView
-                    android:id="@+id/tvProductPrice"
-                    android:layout_width="wrap_content"
+                <!-- Precio unidad -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@android:color/black"
-                    tools:text="Precio unidad: $15.000" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
 
-                <TextView
-                    android:id="@+id/tvProductQuantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@android:color/black"
-                    tools:text="Cantidad disponible: 20" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Precio Unidad :"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="8dp" />
 
-                <TextView
-                    android:id="@+id/tvProductTotal"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tvProductPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/holo_orange_dark"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:gravity="end"
+                        android:layout_marginEnd="12dp"
+                        tools:text="$ 23.000,00" />
+                </LinearLayout>
+
+                <!-- Cantidad disponible -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/holo_red_dark"
-                    tools:text="Total: $300.000" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cantidad Disponible:"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvProductQuantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:gravity="end"
+                        android:layout_marginEnd="12dp"
+                        tools:text="256" />
+                </LinearLayout>
+
+                <!-- Total -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total:"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvProductTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/holo_orange_dark"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:gravity="end"
+                        android:layout_marginEnd="12dp"
+                        tools:text="$ 5.888.000,00" />
+                </LinearLayout>
             </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Botón Eliminar (estilo solicitado) -->
