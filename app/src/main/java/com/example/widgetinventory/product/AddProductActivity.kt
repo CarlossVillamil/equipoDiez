@@ -1,7 +1,9 @@
 package com.example.widgetinventory.product
 
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputFilter
+import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import com.example.widgetinventory.database.DatabaseHelper
 import com.example.widgetinventory.databinding.ActivityAddProductBinding
@@ -23,6 +25,7 @@ class AddProductActivity : AppCompatActivity() {
         setupToolbar()
         setupInputValidation()
         setupSaveButton()
+        setupTextWatchers()
     }
 
     private fun setupToolbar() {
@@ -62,9 +65,36 @@ class AddProductActivity : AppCompatActivity() {
         )
 
         binding.etQuantity.filters = arrayOf<InputFilter>(
-            InputFilter.LengthFilter(9),
+            InputFilter.LengthFilter(4),
             digitsOnly
         )
+    }
+
+    private fun setupTextWatchers() {
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                checkFieldsForEmptyValues()
+            }
+        }
+
+        binding.etProductCode.addTextChangedListener(textWatcher)
+        binding.etProductName.addTextChangedListener(textWatcher)
+        binding.etPrice.addTextChangedListener(textWatcher)
+        binding.etQuantity.addTextChangedListener(textWatcher)
+    }
+
+    private fun checkFieldsForEmptyValues() {
+        val code = binding.etProductCode.text?.toString()?.trim().orEmpty()
+        val name = binding.etProductName.text?.toString()?.trim().orEmpty()
+        val price = binding.etPrice.text?.toString()?.trim().orEmpty()
+        val quantity = binding.etQuantity.text?.toString()?.trim().orEmpty()
+
+        binding.btnSave.isEnabled = code.isNotEmpty() && 
+                                     name.isNotEmpty() && 
+                                     price.isNotEmpty() && 
+                                     quantity.isNotEmpty()
     }
 
     private fun setupSaveButton() {
