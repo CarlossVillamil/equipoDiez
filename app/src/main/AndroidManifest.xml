@@ -35,6 +35,26 @@
                 android:value=".home.HomeActivity" />
         </activity>
 
+        <activity
+            android:name=".product.DetailProductActivity"
+            android:label="Detalle del producto"
+            android:parentActivityName=".home.HomeActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".home.HomeActivity" />
+        </activity>
+
+        <activity
+            android:name=".product.EditProductActivity"
+            android:label="Editar producto"
+            android:parentActivityName=".home.HomeActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".home.HomeActivity" />
+        </activity>
+
         <activity android:name=".MainActivity" />
 
         <receiver
