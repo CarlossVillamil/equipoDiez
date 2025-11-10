@@ -1,5 +1,7 @@
 package com.example.widgetinventory.home
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +18,7 @@ import com.example.widgetinventory.databinding.ActivityHomeBinding
 import com.example.widgetinventory.login.LoginActivity
 import com.example.widgetinventory.model.Product
 import com.example.widgetinventory.product.AddProductActivity
+import com.example.widgetinventory.widget.InventoryWidgetProvider
 import com.example.widgetinventory.product.DetailProductActivity
 
 class HomeActivity : AppCompatActivity() {
@@ -69,29 +72,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-//    private fun loadProducts() {
-//        binding.progressBar.visibility = View.VISIBLE
-//        binding.recyclerViewProducts.visibility = View.GONE
-//
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            productList.clear()
-//            productList.addAll(
-//                listOf(
-//                    Product("001", "Laptop Dell", 2500000.00),
-//                    Product("002", "Mouse Logitech", 85000.50),
-//                    Product("003", "Teclado Mecánico", 350000.00),
-//                    Product("004", "Monitor Samsung 24\"", 890000.00),
-//                    Product("005", "Webcam HD", 125000.75)
-//                )
-//            )
-//
-//            productAdapter.updateProducts(productList)
-//
-//            binding.progressBar.visibility = View.GONE
-//            binding.recyclerViewProducts.visibility = View.VISIBLE
-//        }, 2000)
-//    }
-
     private fun loadProducts() {
         val dbHelper = DatabaseHelper(this)
         val products = dbHelper.getAllProducts()
@@ -127,6 +107,17 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadProducts()
+        updateWidget()
+    }
+
+    private fun updateWidget() {
+        val intent = Intent(this, InventoryWidgetProvider::class.java)
+        intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        val ids = AppWidgetManager.getInstance(application).getAppWidgetIds(
+            ComponentName(application, InventoryWidgetProvider::class.java)
+        )
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        sendBroadcast(intent)
     }
 
     override fun onBackPressed() {
